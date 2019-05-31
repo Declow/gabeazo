@@ -29,15 +29,12 @@ namespace GabeazoWin
         private WebClient client;
         private KeyboardHook hook;
 
-
         private CancellationTokenSource cancellationTokenSource;
 
         public WPFProgram()
         {
             int screenLeft = SystemInformation.VirtualScreen.Left;
             int screenTop = SystemInformation.VirtualScreen.Top;
-            //int screenWidth = SystemInformation.VirtualScreen.Width;
-            //int screenHeight = SystemInformation.VirtualScreen.Height;
 
             this.Left = screenLeft-10;
             this.Top = screenTop;
@@ -46,7 +43,6 @@ namespace GabeazoWin
             client.Encoding = Encoding.UTF8;
             client.UploadFileCompleted += Client_UploadFileCompleted;
 
-            //this.Opacity = 0.01;
             var bc = new BrushConverter();
             this.Background = (System.Windows.Media.Brush)bc.ConvertFrom("#0100ffff");
             this.AllowsTransparency = true;
@@ -57,14 +53,6 @@ namespace GabeazoWin
             this.ShowInTaskbar = false;
             this.WindowStyle = WindowStyle.None;
             this.Topmost = true;
-            //this.WindowState = WindowState.Maximized;
-
-            //this.MouseLeftButtonDown+= WPFProgram_LefMouseDown;
-            //this.MouseLeftButtonUp += WPFProgram_LeftMouseUp;
-            //this.MouseMove += WPFProgram_MouseMove;
-            //this.MouseRightButtonDown += WPFProgram_RightMouseDown;
-
-            //Mouse.OverrideCursor = System.Windows.Input.Cursors.Cross;
        
             myRect.Stroke = System.Windows.Media.Brushes.Black;
             myRect.Fill = System.Windows.Media.Brushes.SkyBlue;
@@ -77,19 +65,6 @@ namespace GabeazoWin
         private void OnHookKeyDown(object sender, HookEventArgs e)
         {     
             if (e.Key == Keys.X)
-            {
-                if (isAttached)
-                {
-                    return;
-                }
-
-                MouseEventsAttach();
-            }
-        }
-
-        private void WPFProgram_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
-        {
-            if (e.Key == Key.X)
             {
                 if (isAttached)
                 {
@@ -152,7 +127,6 @@ namespace GabeazoWin
             }
         }
 
-
         private void MouseEventsAttach()
         {
             this.Height = SystemInformation.VirtualScreen.Height + 10;
@@ -193,9 +167,6 @@ namespace GabeazoWin
             endLocation = Mouse.GetPosition(this);
 
             canvas.Children.Remove(myRect);
-            //canvas.Opacity = 0;
-            //canvas.InvalidateVisual();
-            //canvas.UpdateLayout();
 
             Action emptyDelegate = delegate { };
             canvas.Dispatcher.Invoke(emptyDelegate, DispatcherPriority.Render);
@@ -232,7 +203,6 @@ namespace GabeazoWin
                 var temp = startLocation;
                 startLocation = endLocation;
                 endLocation = temp;
-
             }
             else if (startLocation.X < endLocation.X && startLocation.Y > endLocation.Y)
             {
@@ -286,6 +256,7 @@ namespace GabeazoWin
 
                 var server = new Uri(url);
                 client.UploadFileAsync(server, filename);
+
         }
 
         private void Client_UploadFileCompleted(object sender, UploadFileCompletedEventArgs e)
