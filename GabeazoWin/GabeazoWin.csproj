@@ -35,6 +35,9 @@
   <PropertyGroup>
     <StartupObject />
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Resources\gabeazoL.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
@@ -68,6 +71,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AppIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\gabeazogoldL.ico" />
+    <Content Include="Resources\gabeazogoldL.png" />
+    <Content Include="Resources\gabeazogoldS.ico" />
+    <Content Include="Resources\gabeazogoldS.png" />
+    <Content Include="Resources\gabeazoL.ico" />
+    <Content Include="Resources\gabeazoL.png" />
+    <Content Include="Resources\gabeazoS.ico" />
+    <Content Include="Resources\gabeazoS.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
