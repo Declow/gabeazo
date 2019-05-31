@@ -25,18 +25,26 @@ namespace GabeazoWin
         private readonly string filename = "imagedata.png";
         private Canvas canvas;
         private System.Windows.Shapes.Rectangle myRect = new System.Windows.Shapes.Rectangle();
+        private bool isAttached;
+        private WebClient client;
+        private KeyboardHook hook;
+
+
+        private CancellationTokenSource cancellationTokenSource;
 
         public WPFProgram()
         {
             int screenLeft = SystemInformation.VirtualScreen.Left;
             int screenTop = SystemInformation.VirtualScreen.Top;
-            int screenWidth = SystemInformation.VirtualScreen.Width;
-            int screenHeight = SystemInformation.VirtualScreen.Height;
+            //int screenWidth = SystemInformation.VirtualScreen.Width;
+            //int screenHeight = SystemInformation.VirtualScreen.Height;
 
-            this.Height = screenHeight+10;
-            this.Width = screenWidth+20;
             this.Left = screenLeft-10;
             this.Top = screenTop;
+
+            client = new WebClient();
+            client.Encoding = Encoding.UTF8;
+            client.UploadFileCompleted += Client_UploadFileCompleted;
 
             //this.Opacity = 0.01;
             var bc = new BrushConverter();
@@ -51,18 +59,45 @@ namespace GabeazoWin
             this.Topmost = true;
             //this.WindowState = WindowState.Maximized;
 
-            this.MouseDown += WPFProgram_MouseDown;
-            this.MouseUp += WPFProgram_MouseUp;
-            this.MouseMove += WPFProgram_MouseMove;
+            //this.MouseLeftButtonDown+= WPFProgram_LefMouseDown;
+            //this.MouseLeftButtonUp += WPFProgram_LeftMouseUp;
+            //this.MouseMove += WPFProgram_MouseMove;
+            //this.MouseRightButtonDown += WPFProgram_RightMouseDown;
 
-            Mouse.OverrideCursor = System.Windows.Input.Cursors.Cross;
-            
-
+            //Mouse.OverrideCursor = System.Windows.Input.Cursors.Cross;
+       
             myRect.Stroke = System.Windows.Media.Brushes.Black;
             myRect.Fill = System.Windows.Media.Brushes.SkyBlue;
             myRect.VerticalAlignment = VerticalAlignment.Center;
-            canvas.Children.Add(myRect);
 
+            hook = new KeyboardHook();
+            hook.KeyDown += new KeyboardHook.HookEventHandler(OnHookKeyDown);
+        }
+
+        private void OnHookKeyDown(object sender, HookEventArgs e)
+        {     
+            if (e.Key == Keys.X)
+            {
+                if (isAttached)
+                {
+                    return;
+                }
+
+                MouseEventsAttach();
+            }
+        }
+
+        private void WPFProgram_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == Key.X)
+            {
+                if (isAttached)
+                {
+                    return;
+                }
+
+                MouseEventsAttach();
+            }
         }
 
         private void WPFProgram_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
@@ -117,29 +152,73 @@ namespace GabeazoWin
             }
         }
 
-        private void WPFProgram_MouseUp(object sender, MouseButtonEventArgs e)
+
+        private void MouseEventsAttach()
         {
+            this.Height = SystemInformation.VirtualScreen.Height + 10;
+            this.Width = SystemInformation.VirtualScreen.Width + 20;
+
+            this.MouseLeftButtonDown += WPFProgram_LefMouseDown;
+            this.MouseLeftButtonUp += WPFProgram_LeftMouseUp;
+            this.MouseMove += WPFProgram_MouseMove;
+            this.MouseRightButtonDown += WPFProgram_RightMouseDown;
+
+            Mouse.OverrideCursor = System.Windows.Input.Cursors.Cross;
+
+            isAttached = true;
+        }
+
+        private void MouseEventsDetatch()
+        {
+            this.Height = 0;
+            this.Height = 0;
+
+            this.MouseLeftButtonDown -= WPFProgram_LefMouseDown;
+            this.MouseLeftButtonUp -= WPFProgram_LeftMouseUp;
+            this.MouseMove -= WPFProgram_MouseMove;
+            this.MouseRightButtonDown -= WPFProgram_RightMouseDown;
+
+            Mouse.OverrideCursor = System.Windows.Input.Cursors.Arrow;
+
+            isAttached = false;
+        }
+
+        private void WPFProgram_LeftMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (cancellationTokenSource.Token.IsCancellationRequested)
+            {
+                return;
+            }
+
             endLocation = Mouse.GetPosition(this);
-            this.Content = null;
 
             canvas.Children.Remove(myRect);
-            canvas.Opacity = 0;
-            canvas.InvalidateVisual();
-            canvas.UpdateLayout();
+            //canvas.Opacity = 0;
+            //canvas.InvalidateVisual();
+            //canvas.UpdateLayout();
 
             Action emptyDelegate = delegate { };
             canvas.Dispatcher.Invoke(emptyDelegate, DispatcherPriority.Render);
             var size = GetSize();
             SaveImage(startLocation, size);
             UploadImage();
-            File.Delete(filename);
-            System.Windows.Application.Current.Shutdown();
+            // System.Windows.Application.Current.Shutdown();
+            MouseEventsDetatch();
         }
 
-        private void WPFProgram_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void WPFProgram_LefMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
+            cancellationTokenSource = new CancellationTokenSource();
             var pointToWindow = Mouse.GetPosition(this);
+            canvas.Children.Add(myRect);
             startLocation = new System.Windows.Point(pointToWindow.X, pointToWindow.Y);
+        }
+
+        private void WPFProgram_RightMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            cancellationTokenSource?.Cancel();
+            canvas.Children.Remove(myRect);
+            MouseEventsDetatch();
         }
 
         public System.Windows.Size GetSize()
@@ -205,17 +284,16 @@ namespace GabeazoWin
         {
             const string url = "http://gabeazo.com/gabeazo.php";
 
-            using (WebClient client = new WebClient())
-            {
                 var server = new Uri(url);
-                client.Encoding = Encoding.UTF8;
-                
-                var res = client.UploadFile(server, filename);
+                client.UploadFileAsync(server, filename);
+        }
 
-                string response = Encoding.UTF8.GetString(res);
-                System.Windows.Clipboard.SetText(response);
-                System.Diagnostics.Process.Start(response);
-            }
+        private void Client_UploadFileCompleted(object sender, UploadFileCompletedEventArgs e)
+        {
+            string response = Encoding.UTF8.GetString(e.Result);
+            System.Windows.Clipboard.SetText(response);
+            System.Diagnostics.Process.Start(response);
+            File.Delete(filename);
         }
     }
 }

@@ -80,7 +80,6 @@ namespace GabeazoWin
         [STAThread]
         public static void Main(string[] args)
         {
-
             System.Windows.Application app = new System.Windows.Application();
             app.Run(new WPFProgram());
             app.Shutdown();
