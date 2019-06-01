@@ -24,9 +24,8 @@ namespace GabeazoWin
         private readonly string filename = "imagedata.png";
         private Canvas canvas;
         private System.Windows.Shapes.Rectangle myRect = new System.Windows.Shapes.Rectangle();
-        private bool isAttached;
         private WebClient client;
-        private KeyboardHook hook;
+        
 
         private CancellationTokenSource cancellationTokenSource;
 
@@ -58,21 +57,15 @@ namespace GabeazoWin
             myRect.VerticalAlignment = VerticalAlignment.Center;
             canvas.Children.Add(myRect);
 
-            hook = new KeyboardHook();
-            hook.KeyDown += new KeyboardHook.HookEventHandler(OnHookKeyDown);
-        }
+            this.Height = SystemInformation.VirtualScreen.Height + 10;
+            this.Width = SystemInformation.VirtualScreen.Width + 20;
 
-        private void OnHookKeyDown(object sender, HookEventArgs e)
-        {     
-            if (e.Key == Keys.X)
-            {
-                if (isAttached)
-                {
-                    return;
-                }
+            this.MouseLeftButtonDown += WPFProgram_LefMouseDown;
+            this.MouseLeftButtonUp += WPFProgram_LeftMouseUp;
+            this.MouseMove += WPFProgram_MouseMove;
+            this.MouseRightButtonDown += WPFProgram_RightMouseDown;
 
-                MouseEventsAttach();
-            }
+            Mouse.OverrideCursor = System.Windows.Input.Cursors.Cross;
         }
 
         private void WPFProgram_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
@@ -126,36 +119,6 @@ namespace GabeazoWin
             }
         }
 
-        private void MouseEventsAttach()
-        {
-            this.Height = SystemInformation.VirtualScreen.Height + 10;
-            this.Width = SystemInformation.VirtualScreen.Width + 20;
-
-            this.MouseLeftButtonDown += WPFProgram_LefMouseDown;
-            this.MouseLeftButtonUp += WPFProgram_LeftMouseUp;
-            this.MouseMove += WPFProgram_MouseMove;
-            this.MouseRightButtonDown += WPFProgram_RightMouseDown;
-
-            Mouse.OverrideCursor = System.Windows.Input.Cursors.Cross;
-
-            isAttached = true;
-        }
-
-        private void MouseEventsDetatch()
-        {
-            this.Height = 0;
-            this.Width = 0;
-
-            this.MouseLeftButtonDown -= WPFProgram_LefMouseDown;
-            this.MouseLeftButtonUp -= WPFProgram_LeftMouseUp;
-            this.MouseMove -= WPFProgram_MouseMove;
-            this.MouseRightButtonDown -= WPFProgram_RightMouseDown;
-
-            Mouse.OverrideCursor = System.Windows.Input.Cursors.Arrow;
-
-            isAttached = false;
-        }
-
         private void WPFProgram_LeftMouseUp(object sender, MouseButtonEventArgs e)
         {
             if (cancellationTokenSource.Token.IsCancellationRequested)
@@ -165,7 +128,6 @@ namespace GabeazoWin
 
             endLocation = Mouse.GetPosition(this);
 
-            //canvas.Children.Remove(myRect);
             myRect.Visibility = Visibility.Hidden;
 
             Action emptyDelegate = delegate { };
@@ -179,8 +141,6 @@ namespace GabeazoWin
 
             SaveImage(startLocation, size);
             UploadImage();
-            // System.Windows.Application.Current.Shutdown();
-            MouseEventsDetatch();
         }
 
         private void WPFProgram_LefMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -197,9 +157,7 @@ namespace GabeazoWin
 
         private void WPFProgram_RightMouseDown(object sender, MouseButtonEventArgs e)
         {
-            cancellationTokenSource?.Cancel();
-            myRect.Visibility = Visibility.Hidden;
-            MouseEventsDetatch();
+            Close();
         }
 
         public System.Windows.Size GetSize()
@@ -260,10 +218,10 @@ namespace GabeazoWin
 
         private void UploadImage()
         {
-            const string url = "http://gabeazo.com/gabeazo.php";
+            const string url = "https://gabeazo.com/gabeazo.php";
 
-                var server = new Uri(url);
-                client.UploadFileAsync(server, filename);
+            var server = new Uri(url);
+            client.UploadFileAsync(server, filename);
         }
 
         private void Client_UploadFileCompleted(object sender, UploadFileCompletedEventArgs e)
@@ -272,6 +230,8 @@ namespace GabeazoWin
             System.Windows.Clipboard.SetText(response);
             System.Diagnostics.Process.Start(response);
             File.Delete(filename);
+
+            Close();
         }
     }
 }

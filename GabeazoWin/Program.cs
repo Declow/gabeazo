@@ -83,17 +83,15 @@ namespace GabeazoWin
             // AppContext context = new AppContext();
             App app = new App(Resources.gabeazoL);
             app.Run();
-            //  app.Shutdown();
-
         }
-
-
     }
 
     public class App : System.Windows.Application
     {
         private NotifyIcon trayIcon;
         public Bitmap icon;
+        private KeyboardHook hook;
+        WPFProgram program;
 
         public App(Bitmap icon)
         {
@@ -114,8 +112,23 @@ namespace GabeazoWin
                 Visible = true
             };
 
-            WPFProgram program = new WPFProgram();
+            ShutdownMode = ShutdownMode.OnExplicitShutdown;
+            program = new WPFProgram();
+
+            hook = new KeyboardHook();
+            hook.KeyDown += new KeyboardHook.HookEventHandler(OnHookKeyDown);
+        }
+
+        private void OnHookKeyDown(object sender, HookEventArgs e)
+        {
+            if (!program.IsLoaded)
+            {
+                program = new WPFProgram();
+            }
+
             program.Show();
+            program.Activate();
+            program.Topmost = true;
         }
 
         void Exit(object sender, EventArgs e)
