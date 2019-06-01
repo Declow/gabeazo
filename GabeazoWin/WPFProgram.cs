@@ -5,6 +5,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,7 +35,7 @@ namespace GabeazoWin
             int screenLeft = SystemInformation.VirtualScreen.Left;
             int screenTop = SystemInformation.VirtualScreen.Top;
 
-            this.Left = screenLeft-10;
+            this.Left = screenLeft;
             this.Top = screenTop;
 
             client = new WebClient();
@@ -42,7 +43,7 @@ namespace GabeazoWin
             client.UploadFileCompleted += Client_UploadFileCompleted;
 
             var bc = new BrushConverter();
-            this.Background = (System.Windows.Media.Brush)bc.ConvertFrom("#0100ffff");
+            //this.Background = (System.Windows.Media.Brush)bc.ConvertFrom("#0100ffff");
             this.AllowsTransparency = true;
             canvas = new Canvas();
             canvas.Opacity = 0.25;
@@ -56,14 +57,19 @@ namespace GabeazoWin
             myRect.Fill = System.Windows.Media.Brushes.SkyBlue;
             myRect.VerticalAlignment = VerticalAlignment.Center;
             canvas.Children.Add(myRect);
-
-            this.Height = SystemInformation.VirtualScreen.Height + 10;
-            this.Width = SystemInformation.VirtualScreen.Width + 20;
+            var s = getScalingFactor();
+            Console.WriteLine(s);
+            this.Height = SystemInformation.VirtualScreen.Height*2;
+            this.Width = SystemInformation.VirtualScreen.Width*2;
 
             this.MouseLeftButtonDown += WPFProgram_LefMouseDown;
             this.MouseLeftButtonUp += WPFProgram_LeftMouseUp;
             this.MouseMove += WPFProgram_MouseMove;
             this.MouseRightButtonDown += WPFProgram_RightMouseDown;
+
+            
+
+            Console.WriteLine(Height + " " + Width);
 
             Mouse.OverrideCursor = System.Windows.Input.Cursors.Cross;
         }
@@ -200,6 +206,8 @@ namespace GabeazoWin
 
         private void SaveImage(System.Windows.Point location, System.Windows.Size size)
         {
+            Console.WriteLine(size);
+            SetProcessDPIAware();
             // create the bitmap to copy the screen shot to
             Bitmap bitmap = new Bitmap(Convert.ToInt32(this.Width), Convert.ToInt32(this.Height));
             // now copy the screen image to the graphics device from the bitmap
@@ -208,12 +216,14 @@ namespace GabeazoWin
                 gr.CopyFromScreen(new System.Drawing.Point(Convert.ToInt32(System.Windows.Application.Current.MainWindow.Left)
                     ,Convert.ToInt32(System.Windows.Application.Current.MainWindow.Top))
                     , new System.Drawing.Point(0, 0), new System.Drawing.Size(Convert.ToInt32(this.Width), Convert.ToInt32(this.Height)));
-                Console.WriteLine("test");
             }
-
-            var rect = new Rectangle(Convert.ToInt32(location.X), Convert.ToInt32(location.Y), Convert.ToInt32(size.Width), Convert.ToInt32(size.Height));
+            bitmap.Save("test.png", ImageFormat.Png);
+            var scale = getScalingFactor();
+            var rect = new Rectangle(Convert.ToInt32(location.X*scale), Convert.ToInt32(location.Y*scale), Convert.ToInt32(size.Width), Convert.ToInt32(size.Height));
             var cropped = bitmap.Clone(rect, bitmap.PixelFormat);
             cropped.Save(filename, ImageFormat.Png);
+            bitmap.Dispose();
+            cropped.Dispose();
         }
 
         private void UploadImage()
@@ -233,5 +243,31 @@ namespace GabeazoWin
 
             Close();
         }
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        public static extern bool SetProcessDPIAware();
+
+        [DllImport("gdi32.dll")]
+        static extern int GetDeviceCaps(IntPtr hdc, int nIndex);
+        public enum DeviceCap
+        {
+            VERTRES = 10,
+            DESKTOPVERTRES = 117,
+
+            // http://pinvoke.net/default.aspx/gdi32/GetDeviceCaps.html
+        }
+
+        private float getScalingFactor()
+        {
+            Graphics g = Graphics.FromHwnd(IntPtr.Zero);
+            IntPtr desktop = g.GetHdc();
+            int LogicalScreenHeight = GetDeviceCaps(desktop, (int)DeviceCap.VERTRES);
+            int PhysicalScreenHeight = GetDeviceCaps(desktop, (int)DeviceCap.DESKTOPVERTRES);
+
+            float ScreenScalingFactor = (float)PhysicalScreenHeight / (float)LogicalScreenHeight;
+
+            return ScreenScalingFactor; // 1.25 = 125%
+        }
+
     }
 }
