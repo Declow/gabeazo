@@ -49,7 +49,6 @@ namespace GabeazoWin
             canvas.Opacity = 0.25;
             this.Content = canvas;
 
-
             this.ShowInTaskbar = false;
             this.WindowStyle = WindowStyle.None;
             this.Topmost = true;
@@ -57,9 +56,7 @@ namespace GabeazoWin
             myRect.Stroke = System.Windows.Media.Brushes.Black;
             myRect.Fill = System.Windows.Media.Brushes.SkyBlue;
             myRect.VerticalAlignment = VerticalAlignment.Center;
-
             canvas.Children.Add(myRect);
-
 
             hook = new KeyboardHook();
             hook.KeyDown += new KeyboardHook.HookEventHandler(OnHookKeyDown);
@@ -122,7 +119,6 @@ namespace GabeazoWin
                     size.Height = endLocation.Y - startLocation.Y;
                     myRect.Height = size.Height;
                     myRect.Width = size.Width;
-
 
                     Canvas.SetTop(myRect, startLocation.Y);
                     Canvas.SetLeft(myRect, startLocation.X);
@@ -226,7 +222,6 @@ namespace GabeazoWin
                 var temp = startLocation;
                 startLocation.Y = endLocation.Y;
                 endLocation.Y = temp.Y;
-
             }
             else if (startLocation.X > endLocation.X && startLocation.Y < endLocation.Y)
             {
@@ -236,7 +231,6 @@ namespace GabeazoWin
                 var temp = startLocation;
                 startLocation.X = endLocation.X;
                 endLocation.X = temp.X;
-
             }
             else if (startLocation.X < endLocation.X && startLocation.Y < endLocation.Y)
             {
@@ -270,7 +264,6 @@ namespace GabeazoWin
 
                 var server = new Uri(url);
                 client.UploadFileAsync(server, filename);
-
         }
 
         private void Client_UploadFileCompleted(object sender, UploadFileCompletedEventArgs e)
