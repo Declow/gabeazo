@@ -19,7 +19,6 @@ namespace GabeazoWin
 {
     class WPFProgram : Window
     {
-
         private System.Windows.Point startLocation;
         private System.Windows.Point endLocation;
         private readonly string filename = "imagedata.png";
@@ -50,6 +49,7 @@ namespace GabeazoWin
             canvas.Opacity = 0.25;
             this.Content = canvas;
 
+
             this.ShowInTaskbar = false;
             this.WindowStyle = WindowStyle.None;
             this.Topmost = true;
@@ -57,6 +57,9 @@ namespace GabeazoWin
             myRect.Stroke = System.Windows.Media.Brushes.Black;
             myRect.Fill = System.Windows.Media.Brushes.SkyBlue;
             myRect.VerticalAlignment = VerticalAlignment.Center;
+
+            canvas.Children.Add(myRect);
+
 
             hook = new KeyboardHook();
             hook.KeyDown += new KeyboardHook.HookEventHandler(OnHookKeyDown);
@@ -89,7 +92,7 @@ namespace GabeazoWin
                     size.Height = startLocation.Y - endLocation.Y;
                     myRect.Height = size.Height;
                     myRect.Width = size.Width;
-
+                    
                     Canvas.SetTop(myRect, endLocation.Y);
                     Canvas.SetLeft(myRect, endLocation.X);
                 }
@@ -166,7 +169,8 @@ namespace GabeazoWin
 
             endLocation = Mouse.GetPosition(this);
 
-            canvas.Children.Remove(myRect);
+            //canvas.Children.Remove(myRect);
+            myRect.Visibility = Visibility.Hidden;
 
             Action emptyDelegate = delegate { };
             canvas.Dispatcher.Invoke(emptyDelegate, DispatcherPriority.Render);
@@ -187,14 +191,18 @@ namespace GabeazoWin
         {
             cancellationTokenSource = new CancellationTokenSource();
             var pointToWindow = Mouse.GetPosition(this);
-            canvas.Children.Add(myRect);
+
             startLocation = new System.Windows.Point(pointToWindow.X, pointToWindow.Y);
+
+            myRect.Width = 0;
+            myRect.Height = 0;
+            myRect.Visibility = Visibility.Visible;
         }
 
         private void WPFProgram_RightMouseDown(object sender, MouseButtonEventArgs e)
         {
             cancellationTokenSource?.Cancel();
-            canvas.Children.Remove(myRect);
+            myRect.Visibility = Visibility.Hidden;
             MouseEventsDetatch();
         }
 
