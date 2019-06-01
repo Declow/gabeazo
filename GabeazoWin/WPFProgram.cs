@@ -145,7 +145,7 @@ namespace GabeazoWin
         private void MouseEventsDetatch()
         {
             this.Height = 0;
-            this.Height = 0;
+            this.Width = 0;
 
             this.MouseLeftButtonDown -= WPFProgram_LefMouseDown;
             this.MouseLeftButtonUp -= WPFProgram_LeftMouseUp;
@@ -171,6 +171,12 @@ namespace GabeazoWin
             Action emptyDelegate = delegate { };
             canvas.Dispatcher.Invoke(emptyDelegate, DispatcherPriority.Render);
             var size = GetSize();
+
+            if(size.Height == 0 || size.Width == 0)
+            {
+                return;
+            }
+
             SaveImage(startLocation, size);
             UploadImage();
             // System.Windows.Application.Current.Shutdown();

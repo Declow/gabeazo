@@ -80,9 +80,49 @@ namespace GabeazoWin
         [STAThread]
         public static void Main(string[] args)
         {
-            System.Windows.Application app = new System.Windows.Application();
-            app.Run(new WPFProgram());
-            app.Shutdown();
+            // AppContext context = new AppContext();
+            App app = new App(Resources.gabeazoL);
+            app.Run();
+            //  app.Shutdown();
+
+        }
+
+
+    }
+
+    public class App : System.Windows.Application
+    {
+        private NotifyIcon trayIcon;
+        public Bitmap icon;
+
+        public App(Bitmap icon)
+        {
+            this.icon = icon;
+        }
+
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
+
+            // Initialize Tray Icon
+            trayIcon = new NotifyIcon()
+            {       
+                Icon = Icon.FromHandle(icon.GetHicon()),
+                ContextMenu = new ContextMenu(new MenuItem[] {
+                new MenuItem("Exit", Exit)
+            }),
+                Visible = true
+            };
+
+            WPFProgram program = new WPFProgram();
+            program.Show();
+        }
+
+        void Exit(object sender, EventArgs e)
+        {
+            // Hide tray icon, otherwise it will remain shown until user mouses over it
+            trayIcon.Visible = false;
+            Current.Shutdown();
         }
     }
 
