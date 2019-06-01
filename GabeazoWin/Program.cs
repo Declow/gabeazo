@@ -121,14 +121,17 @@ namespace GabeazoWin
 
         private void OnHookKeyDown(object sender, HookEventArgs e)
         {
-            if (!program.IsLoaded)
+            if (e.Key == Keys.C && e.Control && e.Shift)
             {
-                program = new WPFProgram();
-            }
+                if (!program.IsLoaded)
+                {
+                    program = new WPFProgram();
+                }
 
-            program.Show();
-            program.Activate();
-            program.Topmost = true;
+                program.Show();
+                program.Activate();
+                program.Topmost = true;
+            }
         }
 
         void Exit(object sender, EventArgs e)
