@@ -36,9 +36,6 @@ namespace GabeazoWin
 
             this.MouseDown += FormProgram_MouseDown;
             this.MouseUp += FormProgram_MouseUp;
-
-
-            //CaptureDesktop();
         }
 
         private void FormProgram_MouseUp(object sender, MouseEventArgs e)
@@ -52,7 +49,16 @@ namespace GabeazoWin
 
         private void FormProgram_MouseDown(object sender, MouseEventArgs e)
         {
-            startLocation = e.Location;
+
+            switch (e.Button)
+            {
+                case MouseButtons.Left:
+                    startLocation = e.Location;
+                    break;
+                case MouseButtons.Right:
+                    Close();
+                    break;
+            }
         }
 
 
@@ -114,25 +120,6 @@ namespace GabeazoWin
             CaptureRegion(desktop, region);
         }
 
-        public void CaptureDesktop()
-        {
-            Rectangle desktop;
-            Screen[] screens;
-
-            desktop = Rectangle.Empty;
-            screens = Screen.AllScreens;
-
-            for (int i = 0; i < screens.Length; i++)
-            {
-                Screen screen;
-
-                screen = screens[i];
-
-                desktop = Rectangle.Union(desktop, screen.Bounds);
-            }
-
-            //CaptureRegion(desktop);
-        }
         public void CaptureRegion(Rectangle region, Rectangle region2)
         {
             IntPtr desktophWnd;
@@ -142,6 +129,7 @@ namespace GabeazoWin
             IntPtr oldBitmap;
             bool success;
             Bitmap result;
+            Bitmap result2;
 
             desktophWnd = GetDesktopWindow();
             desktopDc = GetWindowDC(desktophWnd);
@@ -159,7 +147,8 @@ namespace GabeazoWin
                 }
 
                 result = Image.FromHbitmap(bitmap);
-                result = result.Clone(region2, result.PixelFormat);
+                result2 = result.Clone(region2, result.PixelFormat);
+                result.Dispose();
             }
             finally
             {
@@ -169,8 +158,8 @@ namespace GabeazoWin
                 ReleaseDC(desktophWnd, desktopDc);
             }
 
-            result.Save("NewMethod.png", ImageFormat.Png);
-            result.Dispose();
+            result2.Save("NewMethod.png", ImageFormat.Png);
+            result2.Dispose();
         }
 
 
