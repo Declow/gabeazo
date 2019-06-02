@@ -23,6 +23,7 @@ namespace GabeazoWin
         public Bitmap icon;
         private KeyboardHook hook;
         WPFProgram program;
+        private FormProgram form;
 
         public App(Bitmap icon)
         {
@@ -45,6 +46,7 @@ namespace GabeazoWin
 
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
             program = new WPFProgram();
+            form = new FormProgram();
 
             hook = new KeyboardHook();
             hook.KeyDown += new KeyboardHook.HookEventHandler(OnHookKeyDown);
@@ -63,6 +65,19 @@ namespace GabeazoWin
                 program.Activate();
                 program.Topmost = true;
             }
+
+            if (e.Key == Keys.X && e.Control && e.Shift)
+            {
+                if (form.IsDisposed)
+                {
+                    form = new FormProgram();
+                }
+
+                form.Show();
+                form.Activate();
+                form.TopMost = true;
+            }
+
         }
 
         void Exit(object sender, EventArgs e)
