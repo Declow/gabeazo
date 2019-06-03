@@ -92,34 +92,39 @@ namespace GabeazoWin
                     size.Width = _startLocation.X - _endLocation.X;
                     size.Height = _startLocation.Y - _endLocation.Y;
 
+                    MoveWindow(_endLocation, size);
                 }
                 else if (_startLocation.X < _endLocation.X && _startLocation.Y > _endLocation.Y)
                 {
                     size.Width = _endLocation.X - _startLocation.X;
                     size.Height = _startLocation.Y - _endLocation.Y;
+
+                    MoveWindow(new Point(_startLocation.X, _endLocation.Y), size);
                 }
                 else if (_startLocation.X > _endLocation.X && _startLocation.Y < _endLocation.Y)
                 {
                     size.Width = _startLocation.X - _endLocation.X;
                     size.Height = _endLocation.Y - _startLocation.Y;
 
+                    MoveWindow(new Point(_endLocation.X, _startLocation.Y), size);
                 }
                 else if (_startLocation.X < _endLocation.X && _startLocation.Y < _endLocation.Y)
                 {
                     size.Width = _endLocation.X - _startLocation.X;
                     size.Height = _endLocation.Y - _startLocation.Y;
+
+                    MoveWindow(_startLocation, size);
                 }
-
-                Console.WriteLine(_startLocation);
-                Console.WriteLine(size);
+                            
                 
-                MoveWindow(_rubberband.Handle, _startLocation.X + SystemInformation.VirtualScreen.Left, _startLocation.Y + SystemInformation.VirtualScreen.Top, size.Width, size.Height, true);
-
                 this.TopMost = true;
                 _rubberband.TopMost = true;
-
-
             }
+        }
+
+        private void MoveWindow(Point location, Size size)
+        {
+            MoveWindow(_rubberband.Handle, location.X + SystemInformation.VirtualScreen.Left, location.Y + SystemInformation.VirtualScreen.Top, size.Width, size.Height, true);
         }
 
         private void FormProgram_MouseUp(object sender, MouseEventArgs e)
