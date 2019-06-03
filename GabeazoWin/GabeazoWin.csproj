@@ -88,6 +88,7 @@
     <Compile Include="SettingsPopup.Designer.cs">
       <DependentUpon>SettingsPopup.cs</DependentUpon>
     </Compile>
+    <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="PresentationCore" />
