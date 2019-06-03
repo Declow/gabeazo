@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,10 +15,12 @@ namespace GabeazoWin
     class FormProgram : Form
     {
 
-        private Point startLocation;
-        private Point endLocation;
-        private Form rubberband;
-        private bool FirstDraw = true;
+        private Point _startLocation;
+        private Point _endLocation;
+        private Form _rubberband;
+        private bool _firstDraw = true;
+        private readonly string _filename = "imagedata.png";
+        private WebClient _client;
 
         public FormProgram()
         {
@@ -28,9 +32,8 @@ namespace GabeazoWin
             this.Location = new Point(screenLeft, screenTop);
 
             this.FormBorderStyle = FormBorderStyle.None;
-            this.Opacity = 0.25;
+            this.Opacity = 0.01;
 
-            //this.TransparencyKey = Color.White;
             this.BackColor = Color.White;
 
             var screenWidth = SystemInformation.VirtualScreen.Width;
@@ -38,67 +41,82 @@ namespace GabeazoWin
 
             this.Size = new Size(screenWidth, screenHeight);
 
-
             this.MouseDown += FormProgram_MouseDown;
             this.MouseMove += FormProgram_MouseMove;
             this.MouseUp += FormProgram_MouseUp;
 
             Cursor = Cursors.Cross;
+
+            this.KeyDown += FormProgram_KeyDown;
             
             SetupRubberband();
             this.TopMost = true;
 
-            startLocation.X = -1;
+            _startLocation.X = -1;
+
+            _client = new WebClient();
+            _client.Encoding = Encoding.UTF8;
+            _client.UploadFileCompleted += Client_UploadFileCompleted;
+
+        }
+
+        private void FormProgram_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape)
+            {
+                _rubberband.Close();
+                Close();
+            }
         }
 
         private void SetupRubberband()
         {
-            rubberband = new Form();
-            rubberband.WindowState = FormWindowState.Normal;
-            rubberband.FormBorderStyle = FormBorderStyle.None;
-            rubberband.StartPosition = FormStartPosition.Manual;
-            rubberband.Opacity = 0.25;
+            _rubberband = new Form();
+            _rubberband.WindowState = FormWindowState.Normal;
+            _rubberband.FormBorderStyle = FormBorderStyle.None;
+            _rubberband.StartPosition = FormStartPosition.Manual;
+            _rubberband.Opacity = 0.25;
         }
         private void FormProgram_MouseMove(object sender, MouseEventArgs e)
         {
-            endLocation = e.Location;
-            if (startLocation.X != -1)
+            _endLocation = e.Location;
+            if (_startLocation.X != -1)
             {
-                if (FirstDraw)
-                    rubberband.Show();
+                if (_firstDraw)
+                    _rubberband.Show();
 
                 var size = new Size();
 
-                if (startLocation.X > endLocation.X && startLocation.Y > endLocation.Y)
+                if (_startLocation.X > _endLocation.X && _startLocation.Y > _endLocation.Y)
                 {
-                    size.Width = startLocation.X - endLocation.X;
-                    size.Height = startLocation.Y - endLocation.Y;
+                    size.Width = _startLocation.X - _endLocation.X;
+                    size.Height = _startLocation.Y - _endLocation.Y;
 
                 }
-                else if (startLocation.X < endLocation.X && startLocation.Y > endLocation.Y)
+                else if (_startLocation.X < _endLocation.X && _startLocation.Y > _endLocation.Y)
                 {
-                    size.Width = endLocation.X - startLocation.X;
-                    size.Height = startLocation.Y - endLocation.Y;
+                    size.Width = _endLocation.X - _startLocation.X;
+                    size.Height = _startLocation.Y - _endLocation.Y;
                 }
-                else if (startLocation.X > endLocation.X && startLocation.Y < endLocation.Y)
+                else if (_startLocation.X > _endLocation.X && _startLocation.Y < _endLocation.Y)
                 {
-                    size.Width = startLocation.X - endLocation.X;
-                    size.Height = endLocation.Y - startLocation.Y;
+                    size.Width = _startLocation.X - _endLocation.X;
+                    size.Height = _endLocation.Y - _startLocation.Y;
 
                 }
-                else if (startLocation.X < endLocation.X && startLocation.Y < endLocation.Y)
+                else if (_startLocation.X < _endLocation.X && _startLocation.Y < _endLocation.Y)
                 {
-                    size.Width = endLocation.X - startLocation.X;
-                    size.Height = endLocation.Y - startLocation.Y;
+                    size.Width = _endLocation.X - _startLocation.X;
+                    size.Height = _endLocation.Y - _startLocation.Y;
                 }
 
-                Console.WriteLine(startLocation);
+                Console.WriteLine(_startLocation);
                 Console.WriteLine(size);
                 
-                MoveWindow(rubberband.Handle, startLocation.X + SystemInformation.VirtualScreen.Left, startLocation.Y + SystemInformation.VirtualScreen.Top, size.Width, size.Height, true);
+                MoveWindow(_rubberband.Handle, _startLocation.X + SystemInformation.VirtualScreen.Left, _startLocation.Y + SystemInformation.VirtualScreen.Top, size.Width, size.Height, true);
 
                 this.TopMost = true;
-                rubberband.TopMost = true;
+                _rubberband.TopMost = true;
 
 
             }
@@ -106,13 +124,17 @@ namespace GabeazoWin
 
         private void FormProgram_MouseUp(object sender, MouseEventArgs e)
         {
-            endLocation = e.Location;
+            _endLocation = e.Location;
             var size = GetSize();
-            var region = new Rectangle(startLocation, size);
-            rubberband.Close();
-            this.Close();
+
+            var region = new Rectangle(_startLocation, size);
+            _rubberband.Close();
+            Close();
+            if (size.Width == 0 || size.Height == 0)
+                return;
 
             CaptureDesktop(region);
+            UploadImage();
         }
 
         private void FormProgram_MouseDown(object sender, MouseEventArgs e)
@@ -121,10 +143,10 @@ namespace GabeazoWin
             switch (e.Button)
             {
                 case MouseButtons.Left:
-                    startLocation = e.Location;
+                    _startLocation = e.Location;
                     break;
                 case MouseButtons.Right:
-                    rubberband.Close();
+                    _rubberband.Close();
                     Close();
                     break;
             }
@@ -134,37 +156,37 @@ namespace GabeazoWin
         public Size GetSize()
         {
             var size = new Size();
-            if (startLocation.X > endLocation.X && startLocation.Y > endLocation.Y)
+            if (_startLocation.X > _endLocation.X && _startLocation.Y > _endLocation.Y)
             {
-                size.Width = startLocation.X - endLocation.X;
-                size.Height = startLocation.Y - endLocation.Y;
+                size.Width = _startLocation.X - _endLocation.X;
+                size.Height = _startLocation.Y - _endLocation.Y;
 
-                var temp = startLocation;
-                startLocation = endLocation;
-                endLocation = temp;
+                var temp = _startLocation;
+                _startLocation = _endLocation;
+                _endLocation = temp;
             }
-            else if (startLocation.X < endLocation.X && startLocation.Y > endLocation.Y)
+            else if (_startLocation.X < _endLocation.X && _startLocation.Y > _endLocation.Y)
             {
-                size.Width = endLocation.X - startLocation.X;
-                size.Height = startLocation.Y - endLocation.Y;
+                size.Width = _endLocation.X - _startLocation.X;
+                size.Height = _startLocation.Y - _endLocation.Y;
 
-                var temp = startLocation;
-                startLocation.Y = endLocation.Y;
-                endLocation.Y = temp.Y;
+                var temp = _startLocation;
+                _startLocation.Y = _endLocation.Y;
+                _endLocation.Y = temp.Y;
             }
-            else if (startLocation.X > endLocation.X && startLocation.Y < endLocation.Y)
+            else if (_startLocation.X > _endLocation.X && _startLocation.Y < _endLocation.Y)
             {
-                size.Width = startLocation.X - endLocation.X;
-                size.Height = endLocation.Y - startLocation.Y;
+                size.Width = _startLocation.X - _endLocation.X;
+                size.Height = _endLocation.Y - _startLocation.Y;
 
-                var temp = startLocation;
-                startLocation.X = endLocation.X;
-                endLocation.X = temp.X;
+                var temp = _startLocation;
+                _startLocation.X = _endLocation.X;
+                _endLocation.X = temp.X;
             }
-            else if (startLocation.X < endLocation.X && startLocation.Y < endLocation.Y)
+            else if (_startLocation.X < _endLocation.X && _startLocation.Y < _endLocation.Y)
             {
-                size.Width = endLocation.X - startLocation.X;
-                size.Height = endLocation.Y - startLocation.Y;
+                size.Width = _endLocation.X - _startLocation.X;
+                size.Height = _endLocation.Y - _startLocation.Y;
             }
             return size;
         }
@@ -228,9 +250,29 @@ namespace GabeazoWin
                 ReleaseDC(desktophWnd, desktopDc);
             }
 
-            result2.Save("NewMethod.png", ImageFormat.Png);
+            result2.Save(_filename, ImageFormat.Png);
             result2.Dispose();
         }
+
+        private void UploadImage()
+        {
+            const string url = "https://gabeazo.com/gabeazo.php";
+
+            var server = new Uri(url);
+            _client.UploadFileAsync(server, _filename);
+        }
+
+        private void Client_UploadFileCompleted(object sender, UploadFileCompletedEventArgs e)
+        {
+            if (e.Error != null)
+                throw e.Error;
+
+            string response = Encoding.UTF8.GetString(e.Result);
+            System.Windows.Clipboard.SetText(response);
+            System.Diagnostics.Process.Start(response);
+            File.Delete(_filename);
+        }
+
 
         [DllImport("User32.dll")]
         static extern bool MoveWindow(IntPtr handle, int x, int y, int width, int height, bool redraw);
