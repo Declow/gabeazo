@@ -31,7 +31,7 @@ namespace GabeazoWin
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-
+            
             // Initialize Tray Icon
             trayIcon = new NotifyIcon()
             {       
