@@ -29,34 +29,31 @@ namespace GabeazoWin
 
         private void Keybound_TextChanged(object sender, EventArgs e)
         {
-            string text = this.Keybound.Text;
-
-            if (text.Length < 1)
-            {
-                text = text.Substring(1);
-            }
-            this.Keybound.Text = text;
-            Settings.Default.Key = text;
+            this.Keybound.Text = Settings.Default.Key;
         }
 
         private void AltBox_CheckedChanged(object sender, EventArgs e)
         {
             Settings.Default.Alt = this.AltBox.Checked;
+            Settings.Default.Save();
         }
 
         private void ShiftBox_CheckedChanged(object sender, EventArgs e)
         {
             Settings.Default.Shift = this.ShiftBox.Checked;
+            Settings.Default.Save();
         }
 
         private void CrtlBox_CheckedChanged(object sender, EventArgs e)
         {
             Settings.Default.Crtl = this.CrtlBox.Checked;
+            Settings.Default.Save();
         }
 
         private void Startup_CheckedChanged(object sender, EventArgs e)
         {
             Settings.Default.RunStartup = this.Startup.Checked;
+            Settings.Default.Save();
         }
     }
 }

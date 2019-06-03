@@ -315,7 +315,18 @@ namespace GabeazoWin
 
         const int CAPTUREBLT = 0x40000000;
 
+        private void InitializeComponent()
+        {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormProgram));
+            this.SuspendLayout();
+            // 
+            // FormProgram
+            // 
+            this.ClientSize = new System.Drawing.Size(284, 261);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Name = "FormProgram";
+            this.ResumeLayout(false);
 
-
+        }
     }
 }

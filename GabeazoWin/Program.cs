@@ -22,7 +22,7 @@ namespace GabeazoWin
         public Bitmap icon;
         private KeyboardHook hook;
         private FormProgram form;
-        SettingsPopup settingsForm;
+        SettingsPopup settingsForm = new SettingsPopup();
 
         public App(Bitmap icon)
         {
@@ -38,7 +38,7 @@ namespace GabeazoWin
             {       
                 Icon = Icon.FromHandle(icon.GetHicon()),
                 ContextMenu = new ContextMenu(new MenuItem[] {
-                new MenuItem("Settings", Settings),
+                new MenuItem("Settings", Setting),
                 new MenuItem("Exit", Exit)
             }),
                 Visible = true
@@ -53,8 +53,8 @@ namespace GabeazoWin
 
         private void OnHookKeyDown(object sender, HookEventArgs e)
         {
-
-            if (e.Key == Keys.X && e.Control && e.Shift)
+            bool isTrigged = LoadSettings(e);
+            if (isTrigged)
             {
                 if (form.IsDisposed)
                 {
@@ -75,10 +75,34 @@ namespace GabeazoWin
             Current.Shutdown();
         }
 
-        void Settings(object sender, EventArgs e)
+        void Setting(object sender, EventArgs e)
         {
-            settingsForm = new SettingsPopup();
             settingsForm.ShowDialog();
+        }
+
+        bool LoadSettings(HookEventArgs e)
+        {
+            bool keyComboTriggered = false;
+
+            string globKey = e.Key.ToString();
+            if (settingsForm.Keybound.Focused)
+            {
+                settingsForm.Keybound.Text = globKey;
+                Settings.Default.Key = globKey;
+                Settings.Default.Save();
+            }
+
+            bool CrtlBox = Settings.Default.Crtl;
+            bool ShiftBox = Settings.Default.Shift;
+            bool AltBox = Settings.Default.Alt;
+            string Keybound = Settings.Default.Key;
+
+            if (e.Key.ToString().ToUpper() == Keybound.ToUpper() && e.Control == CrtlBox && e.Shift == ShiftBox && e.Alt == AltBox)
+            {
+                keyComboTriggered = true;
+            }
+
+            return keyComboTriggered;
         }
     }
 

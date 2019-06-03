@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SettingsPopup));
             this.Keybound = new System.Windows.Forms.TextBox();
             this.Startup = new System.Windows.Forms.CheckBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -41,7 +42,7 @@
             // 
             this.Keybound.Location = new System.Drawing.Point(15, 94);
             this.Keybound.Name = "Keybound";
-            this.Keybound.Size = new System.Drawing.Size(47, 20);
+            this.Keybound.Size = new System.Drawing.Size(70, 20);
             this.Keybound.TabIndex = 55;
             this.Keybound.TextChanged += new System.EventHandler(this.Keybound_TextChanged);
             // 
@@ -121,6 +122,7 @@
             this.Controls.Add(this.ShiftBox);
             this.Controls.Add(this.CrtlBox);
             this.Controls.Add(this.Save);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "SettingsPopup";
             this.Text = "SettingsPopup";
             this.ResumeLayout(false);
@@ -129,13 +131,12 @@
         }
 
         #endregion
-
-        private System.Windows.Forms.TextBox Keybound;
         private System.Windows.Forms.CheckBox Startup;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.CheckBox AltBox;
         private System.Windows.Forms.CheckBox ShiftBox;
         private System.Windows.Forms.CheckBox CrtlBox;
         private System.Windows.Forms.Button Save;
+        public System.Windows.Forms.TextBox Keybound;
     }
 }
