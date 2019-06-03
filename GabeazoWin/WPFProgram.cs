@@ -87,8 +87,7 @@ namespace GabeazoWin
             this.MouseLeftButtonUp += WPFProgram_LeftMouseUp;
             this.MouseMove += WPFProgram_MouseMove;
             this.MouseRightButtonDown += WPFProgram_RightMouseDown;
-
-            
+                        
 
             Console.WriteLine(Height + " " + Width);
 

@@ -15,6 +15,8 @@ namespace GabeazoWin
 
         private Point startLocation;
         private Point endLocation;
+        private Form rubberband;
+        private bool FirstDraw = true;
 
         public FormProgram()
         {
@@ -28,6 +30,9 @@ namespace GabeazoWin
             this.FormBorderStyle = FormBorderStyle.None;
             this.Opacity = 0.25;
 
+            //this.TransparencyKey = Color.White;
+            this.BackColor = Color.White;
+
             var screenWidth = SystemInformation.VirtualScreen.Width;
             var screenHeight = SystemInformation.VirtualScreen.Height;
 
@@ -35,7 +40,68 @@ namespace GabeazoWin
 
 
             this.MouseDown += FormProgram_MouseDown;
+            this.MouseMove += FormProgram_MouseMove;
             this.MouseUp += FormProgram_MouseUp;
+
+            Cursor = Cursors.Cross;
+            
+            SetupRubberband();
+            this.TopMost = true;
+
+            startLocation.X = -1;
+        }
+
+        private void SetupRubberband()
+        {
+            rubberband = new Form();
+            rubberband.WindowState = FormWindowState.Normal;
+            rubberband.FormBorderStyle = FormBorderStyle.None;
+            rubberband.StartPosition = FormStartPosition.Manual;
+            rubberband.Opacity = 0.25;
+        }
+        private void FormProgram_MouseMove(object sender, MouseEventArgs e)
+        {
+            endLocation = e.Location;
+            if (startLocation.X != -1)
+            {
+                if (FirstDraw)
+                    rubberband.Show();
+
+                var size = new Size();
+
+                if (startLocation.X > endLocation.X && startLocation.Y > endLocation.Y)
+                {
+                    size.Width = startLocation.X - endLocation.X;
+                    size.Height = startLocation.Y - endLocation.Y;
+
+                }
+                else if (startLocation.X < endLocation.X && startLocation.Y > endLocation.Y)
+                {
+                    size.Width = endLocation.X - startLocation.X;
+                    size.Height = startLocation.Y - endLocation.Y;
+                }
+                else if (startLocation.X > endLocation.X && startLocation.Y < endLocation.Y)
+                {
+                    size.Width = startLocation.X - endLocation.X;
+                    size.Height = endLocation.Y - startLocation.Y;
+
+                }
+                else if (startLocation.X < endLocation.X && startLocation.Y < endLocation.Y)
+                {
+                    size.Width = endLocation.X - startLocation.X;
+                    size.Height = endLocation.Y - startLocation.Y;
+                }
+
+                Console.WriteLine(startLocation);
+                Console.WriteLine(size);
+                
+                MoveWindow(rubberband.Handle, startLocation.X + SystemInformation.VirtualScreen.Left, startLocation.Y + SystemInformation.VirtualScreen.Top, size.Width, size.Height, true);
+
+                this.TopMost = true;
+                rubberband.TopMost = true;
+
+
+            }
         }
 
         private void FormProgram_MouseUp(object sender, MouseEventArgs e)
@@ -43,8 +109,10 @@ namespace GabeazoWin
             endLocation = e.Location;
             var size = GetSize();
             var region = new Rectangle(startLocation, size);
-            CaptureDesktop(region);
+            rubberband.Close();
             this.Close();
+
+            CaptureDesktop(region);
         }
 
         private void FormProgram_MouseDown(object sender, MouseEventArgs e)
@@ -56,6 +124,7 @@ namespace GabeazoWin
                     startLocation = e.Location;
                     break;
                 case MouseButtons.Right:
+                    rubberband.Close();
                     Close();
                     break;
             }
@@ -148,6 +217,7 @@ namespace GabeazoWin
 
                 result = Image.FromHbitmap(bitmap);
                 result2 = result.Clone(region2, result.PixelFormat);
+                Console.WriteLine(region2);
                 result.Dispose();
             }
             finally
@@ -162,7 +232,11 @@ namespace GabeazoWin
             result2.Dispose();
         }
 
+        [DllImport("User32.dll")]
+        static extern bool MoveWindow(IntPtr handle, int x, int y, int width, int height, bool redraw);
 
+        [DllImport("User32.dll")]
+        public static extern IntPtr GetDC(IntPtr hwnd);
 
         [DllImport("gdi32.dll")]
         static extern bool BitBlt(IntPtr hdcDest, int nxDest, int nyDest, int nWidth, int nHeight, IntPtr hdcSrc, int nXSrc, int nYSrc, int dwRop);
