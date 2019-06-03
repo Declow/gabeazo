@@ -60,22 +60,14 @@ namespace GabeazoWin
 
         }
 
-        private void FormProgram_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Escape)
-            {
-                _rubberband.Close();
-                Close();
-            }
-        }
-
         private void SetupRubberband()
         {
             _rubberband = new Form();
             _rubberband.WindowState = FormWindowState.Normal;
             _rubberband.FormBorderStyle = FormBorderStyle.None;
             _rubberband.StartPosition = FormStartPosition.Manual;
-            _rubberband.Opacity = 0.25;
+            _rubberband.Opacity = 0.40;
+            _rubberband.BackColor = Color.FromArgb(66, 158, 244);
         }
         private void FormProgram_MouseMove(object sender, MouseEventArgs e)
         {
@@ -115,7 +107,6 @@ namespace GabeazoWin
 
                     MoveWindow(_startLocation, size);
                 }
-                            
                 
                 this.TopMost = true;
                 _rubberband.TopMost = true;
@@ -157,6 +148,14 @@ namespace GabeazoWin
             }
         }
 
+        private void FormProgram_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape)
+            {
+                _rubberband.Close();
+                Close();
+            }
+        }
 
         public Size GetSize()
         {
