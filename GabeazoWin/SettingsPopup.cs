@@ -52,8 +52,19 @@ namespace GabeazoWin
 
         private void Startup_CheckedChanged(object sender, EventArgs e)
         {
-            Settings.Default.RunStartup = this.Startup.Checked;
+            bool toggleStartUp = this.Startup.Checked;
+            Settings.Default.RunStartup = toggleStartUp;
             Settings.Default.Save();
+            Startup startup = new Startup();
+
+            if (toggleStartUp)
+            {
+                startup.SetStartup();
+            }
+            else
+            {
+                startup.RemoveStartup();
+            }
         }
     }
 }
