@@ -22,6 +22,7 @@ namespace GabeazoWin
         public Bitmap icon;
         private KeyboardHook hook;
         private FormProgram form;
+        SettingsPopup settingsForm;
 
         public App(Bitmap icon)
         {
@@ -37,6 +38,7 @@ namespace GabeazoWin
             {       
                 Icon = Icon.FromHandle(icon.GetHicon()),
                 ContextMenu = new ContextMenu(new MenuItem[] {
+                new MenuItem("Settings", Settings),
                 new MenuItem("Exit", Exit)
             }),
                 Visible = true
@@ -71,6 +73,12 @@ namespace GabeazoWin
             // Hide tray icon, otherwise it will remain shown until user mouses over it
             trayIcon.Visible = false;
             Current.Shutdown();
+        }
+
+        void Settings(object sender, EventArgs e)
+        {
+            settingsForm = new SettingsPopup();
+            settingsForm.ShowDialog();
         }
     }
 
