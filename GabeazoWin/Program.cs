@@ -11,7 +11,6 @@ namespace GabeazoWin
         [STAThread]
         public static void Main(string[] args)
         {
-            // AppContext context = new AppContext();
             App app = new App(Resources.gabeazoL);
             app.Run();
         }
@@ -22,7 +21,7 @@ namespace GabeazoWin
         private NotifyIcon trayIcon;
         public Bitmap icon;
         private KeyboardHook hook;
-        WPFProgram program;
+        private FormProgram form;
 
         public App(Bitmap icon)
         {
@@ -44,7 +43,7 @@ namespace GabeazoWin
             };
 
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
-            program = new WPFProgram();
+            form = new FormProgram();
 
             hook = new KeyboardHook();
             hook.KeyDown += new KeyboardHook.HookEventHandler(OnHookKeyDown);
@@ -52,17 +51,19 @@ namespace GabeazoWin
 
         private void OnHookKeyDown(object sender, HookEventArgs e)
         {
-            if (e.Key == Keys.C && e.Control && e.Shift)
+
+            if (e.Key == Keys.X && e.Control && e.Shift)
             {
-                if (!program.IsLoaded)
+                if (form.IsDisposed)
                 {
-                    program = new WPFProgram();
+                    form = new FormProgram();
                 }
 
-                program.Show();
-                program.Activate();
-                program.Topmost = true;
+                form.Show();
+                form.Activate();
+                form.TopMost = true;
             }
+
         }
 
         void Exit(object sender, EventArgs e)
