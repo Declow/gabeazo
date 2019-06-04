@@ -62,6 +62,11 @@ namespace GabeazoWin
 
             hook = new KeyboardHook();
             hook.KeyDown += new KeyboardHook.HookEventHandler(OnHookKeyDown);
+
+            if (Settings.Default.Key == "")
+            {
+                settingsForm.ShowDialog();
+            }
         }
 
         private void OnHookKeyDown(object sender, HookEventArgs e)

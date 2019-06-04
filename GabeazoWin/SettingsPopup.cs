@@ -20,6 +20,7 @@ namespace GabeazoWin
     {
         public SettingsPopup()
         {
+            this.ShowInTaskbar = false;
             InitializeComponent();
             this.CrtlBox.Checked = Settings.Default.Crtl;
             this.ShiftBox.Checked = Settings.Default.Shift;
