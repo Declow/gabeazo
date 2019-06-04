@@ -32,9 +32,9 @@ namespace GabeazoWin
             this.Location = new Point(screenLeft, screenTop);
 
             this.FormBorderStyle = FormBorderStyle.None;
-            this.Opacity = 0.01;
 
-            this.BackColor = Color.White;
+            this.BackColor = Color.Red;
+            this.TransparencyKey = Color.Red;
 
             var screenWidth = SystemInformation.VirtualScreen.Width;
             var screenHeight = SystemInformation.VirtualScreen.Height;
