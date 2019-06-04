@@ -20,7 +20,6 @@ namespace GabeazoWin
     {
         public SettingsPopup()
         {
-            this.ShowInTaskbar = false;
             InitializeComponent();
             this.CrtlBox.Checked = Settings.Default.Crtl;
             this.ShiftBox.Checked = Settings.Default.Shift;
@@ -32,11 +31,6 @@ namespace GabeazoWin
         private void Save_Click(object sender, EventArgs e)
         {
 
-        }
-
-        private void Keybound_TextChanged(object sender, EventArgs e)
-        {
-            this.Keybound.Text = Settings.Default.Key;
         }
 
         private void AltBox_CheckedChanged(object sender, EventArgs e)

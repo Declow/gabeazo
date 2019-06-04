@@ -42,9 +42,9 @@
             // 
             this.Keybound.Location = new System.Drawing.Point(15, 94);
             this.Keybound.Name = "Keybound";
+            this.Keybound.ReadOnly = true;
             this.Keybound.Size = new System.Drawing.Size(70, 20);
             this.Keybound.TabIndex = 55;
-            this.Keybound.TextChanged += new System.EventHandler(this.Keybound_TextChanged);
             // 
             // Startup
             // 
@@ -123,6 +123,8 @@
             this.Controls.Add(this.CrtlBox);
             this.Controls.Add(this.Save);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "SettingsPopup";
             this.Text = "SettingsPopup";
             this.ResumeLayout(false);
