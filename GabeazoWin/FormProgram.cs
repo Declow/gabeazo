@@ -32,6 +32,7 @@ namespace GabeazoWin
             this.Location = new Point(screenLeft, screenTop);
 
             this.FormBorderStyle = FormBorderStyle.None;
+            this.ShowInTaskbar = false;
 
             this.BackColor = Color.Red;
             this.TransparencyKey = Color.Red;
@@ -66,6 +67,7 @@ namespace GabeazoWin
             _rubberband.WindowState = FormWindowState.Normal;
             _rubberband.FormBorderStyle = FormBorderStyle.None;
             _rubberband.StartPosition = FormStartPosition.Manual;
+            _rubberband.ShowInTaskbar = false;
             _rubberband.Opacity = 0.40;
             _rubberband.BackColor = Color.FromArgb(66, 158, 244);
         }
