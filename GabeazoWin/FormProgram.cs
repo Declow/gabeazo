@@ -140,8 +140,7 @@ namespace GabeazoWin
             Close();
             if (size.Width == 0 || size.Height == 0)
                 return;
-
-            CaptureDesktop(region);
+            CaptureRegion(region);
             UploadImage();
         }
 
@@ -207,7 +206,7 @@ namespace GabeazoWin
             return size;
         }
 
-        public void CaptureDesktop(Rectangle region)
+        public void CaptureDesktop()
         {
             Rectangle desktop;
             Screen[] screens;
@@ -224,10 +223,10 @@ namespace GabeazoWin
                 desktop = Rectangle.Union(desktop, screen.Bounds);
             }
 
-            CaptureRegion(desktop, region);
+            CaptureRegion(desktop, true);
         }
 
-        public void CaptureRegion(Rectangle region, Rectangle region2)
+        public void CaptureRegion(Rectangle region, bool captureDesktop = false)
         {
             IntPtr desktophWnd;
             IntPtr desktopDc;
@@ -236,7 +235,6 @@ namespace GabeazoWin
             IntPtr oldBitmap;
             bool success;
             Bitmap result;
-            Bitmap result2;
 
             desktophWnd = GetDesktopWindow();
             desktopDc = GetWindowDC(desktophWnd);
@@ -244,7 +242,10 @@ namespace GabeazoWin
             bitmap = CreateCompatibleBitmap(desktopDc, region.Width, region.Height);
             oldBitmap = SelectObject(memoryDc, bitmap);
 
-            success = BitBlt(memoryDc, 0, 0, region.Width, region.Height, desktopDc, region.Left, region.Top, SRCCOPY | CAPTUREBLT);
+            if (captureDesktop)
+                success = BitBlt(memoryDc, 0, 0, region.Width, region.Height, desktopDc, region.Left, region.Top, SRCCOPY | CAPTUREBLT);
+            else
+                success = BitBlt(memoryDc, 0, 0, region.Width, region.Height, desktopDc, region.Left + SystemInformation.VirtualScreen.Left, region.Top + SystemInformation.VirtualScreen.Top, SRCCOPY | CAPTUREBLT);
 
             try
             {
@@ -254,9 +255,6 @@ namespace GabeazoWin
                 }
 
                 result = Image.FromHbitmap(bitmap);
-                result2 = result.Clone(region2, result.PixelFormat);
-                Console.WriteLine(region2);
-                result.Dispose();
             }
             finally
             {
@@ -266,8 +264,8 @@ namespace GabeazoWin
                 ReleaseDC(desktophWnd, desktopDc);
             }
 
-            result2.Save(_filename, ImageFormat.Png);
-            result2.Dispose();
+            result.Save(_filename, ImageFormat.Png);
+            result.Dispose();
         }
 
         private void UploadImage()
