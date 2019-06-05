@@ -33,11 +33,6 @@ namespace GabeazoWin
 
         }
 
-        private void Keybound_TextChanged(object sender, EventArgs e)
-        {
-            this.Keybound.Text = Settings.Default.Key;
-        }
-
         private void AltBox_CheckedChanged(object sender, EventArgs e)
         {
             Settings.Default.Alt = this.AltBox.Checked;
