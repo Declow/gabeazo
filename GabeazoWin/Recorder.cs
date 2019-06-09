@@ -21,7 +21,8 @@ namespace GabeazoWin
 
         public void CaptureScreenFromPoint(Point p)
         {
-            CaptureRegion(Screen.GetBounds(p));
+            var screen = Screen.FromPoint(new Point(p.X + SystemInformation.VirtualScreen.Left, p.Y + SystemInformation.VirtualScreen.Top));
+            CaptureRegion(screen.Bounds, true);
         }
 
         public void CaptureDesktop()
