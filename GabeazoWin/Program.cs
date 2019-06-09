@@ -58,7 +58,7 @@ namespace GabeazoWin
             };
 
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
-            form = new FormProgram();
+            form = new FormProgram(true);
 
             hook = new KeyboardHook();
             hook.KeyDown += new KeyboardHook.HookEventHandler(OnHookKeyDown);
@@ -76,7 +76,7 @@ namespace GabeazoWin
             {
                 if (form.IsDisposed)
                 {
-                    form = new FormProgram();
+                    form = new FormProgram(true);
                 }
 
                 form.Show();
