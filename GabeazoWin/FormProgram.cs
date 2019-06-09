@@ -31,8 +31,10 @@ namespace GabeazoWin
         private bool _firstDraw = true;
         private readonly string _filename = "imagedata.png";
         private WebClient _client;
+        private Recorder _recorder;
+        private bool _oneScreen;
 
-        public FormProgram()
+        public FormProgram(bool oneScreen = false)
         {
             var screenLeft = SystemInformation.VirtualScreen.Left;
             var screenTop = SystemInformation.VirtualScreen.Top;
@@ -59,7 +61,10 @@ namespace GabeazoWin
             Cursor = Cursors.Cross;
 
             this.KeyDown += FormProgram_KeyDown;
-            
+
+            _recorder = new Recorder(_filename);
+            _oneScreen = oneScreen;
+
             SetupRubberband();
             this.TopMost = true;
 
@@ -140,7 +145,7 @@ namespace GabeazoWin
             Close();
             if (size.Width == 0 || size.Height == 0)
                 return;
-            CaptureRegion(region);
+            _recorder.CaptureRegion(region);
             UploadImage();
         }
 
@@ -150,6 +155,14 @@ namespace GabeazoWin
             switch (e.Button)
             {
                 case MouseButtons.Left:
+                    if (_oneScreen)
+                    {
+                        _recorder.CaptureScreenFromPoint(e.Location);
+                        _rubberband.Close();
+                        Close();
+                        UploadImage();
+                    }
+
                     _startLocation = e.Location;
                     break;
                 case MouseButtons.Right:
@@ -206,67 +219,6 @@ namespace GabeazoWin
             return size;
         }
 
-        public void CaptureDesktop()
-        {
-            Rectangle desktop;
-            Screen[] screens;
-
-            desktop = Rectangle.Empty;
-            screens = Screen.AllScreens;
-
-            for (int i = 0; i < screens.Length; i++)
-            {
-                Screen screen;
-
-                screen = screens[i];
-
-                desktop = Rectangle.Union(desktop, screen.Bounds);
-            }
-
-            CaptureRegion(desktop, true);
-        }
-
-        public void CaptureRegion(Rectangle region, bool captureDesktop = false)
-        {
-            IntPtr desktophWnd;
-            IntPtr desktopDc;
-            IntPtr memoryDc;
-            IntPtr bitmap;
-            IntPtr oldBitmap;
-            bool success;
-            Bitmap result;
-
-            desktophWnd = GetDesktopWindow();
-            desktopDc = GetWindowDC(desktophWnd);
-            memoryDc = CreateCompatibleDC(desktopDc);
-            bitmap = CreateCompatibleBitmap(desktopDc, region.Width, region.Height);
-            oldBitmap = SelectObject(memoryDc, bitmap);
-
-            if (captureDesktop)
-                success = BitBlt(memoryDc, 0, 0, region.Width, region.Height, desktopDc, region.Left, region.Top, SRCCOPY | CAPTUREBLT);
-            else
-                success = BitBlt(memoryDc, 0, 0, region.Width, region.Height, desktopDc, region.Left + SystemInformation.VirtualScreen.Left, region.Top + SystemInformation.VirtualScreen.Top, SRCCOPY | CAPTUREBLT);
-
-            try
-            {
-                if (!success)
-                {
-                    throw new System.ComponentModel.Win32Exception();
-                }
-
-                result = Image.FromHbitmap(bitmap);
-            }
-            finally
-            {
-                SelectObject(memoryDc, oldBitmap);
-                DeleteObject(bitmap);
-                DeleteDC(memoryDc);
-                ReleaseDC(desktophWnd, desktopDc);
-            }
-
-            result.Save(_filename, ImageFormat.Png);
-            result.Dispose();
-        }
 
         private void UploadImage()
         {
@@ -287,44 +239,6 @@ namespace GabeazoWin
             File.Delete(_filename);
         }
 
-
-        [DllImport("User32.dll")]
-        static extern bool MoveWindow(IntPtr handle, int x, int y, int width, int height, bool redraw);
-
-        [DllImport("User32.dll")]
-        public static extern IntPtr GetDC(IntPtr hwnd);
-
-        [DllImport("gdi32.dll")]
-        static extern bool BitBlt(IntPtr hdcDest, int nxDest, int nyDest, int nWidth, int nHeight, IntPtr hdcSrc, int nXSrc, int nYSrc, int dwRop);
-
-        [DllImport("gdi32.dll")]
-        static extern IntPtr CreateCompatibleBitmap(IntPtr hdc, int width, int nHeight);
-
-        [DllImport("gdi32.dll")]
-        static extern IntPtr CreateCompatibleDC(IntPtr hdc);
-
-        [DllImport("gdi32.dll")]
-        static extern IntPtr DeleteDC(IntPtr hdc);
-
-        [DllImport("gdi32.dll")]
-        static extern IntPtr DeleteObject(IntPtr hObject);
-
-        [DllImport("user32.dll")]
-        static extern IntPtr GetDesktopWindow();
-
-        [DllImport("user32.dll")]
-        static extern IntPtr GetWindowDC(IntPtr hWnd);
-
-        [DllImport("user32.dll")]
-        static extern bool ReleaseDC(IntPtr hWnd, IntPtr hDc);
-
-        [DllImport("gdi32.dll")]
-        static extern IntPtr SelectObject(IntPtr hdc, IntPtr hObject);
-
-        const int SRCCOPY = 0x00CC0020;
-
-        const int CAPTUREBLT = 0x40000000;
-
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormProgram));
@@ -338,5 +252,8 @@ namespace GabeazoWin
             this.ResumeLayout(false);
 
         }
+
+        [DllImport("User32.dll")]
+        static extern bool MoveWindow(IntPtr handle, int x, int y, int width, int height, bool redraw);
     }
 }
