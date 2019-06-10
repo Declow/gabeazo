@@ -21,11 +21,18 @@ namespace GabeazoWin
         public SettingsPopup()
         {
             InitializeComponent();
+            //Region
             this.CrtlBox.Checked = Settings.Default.Crtl;
             this.ShiftBox.Checked = Settings.Default.Shift;
             this.AltBox.Checked = Settings.Default.Alt;
             this.Keybound.Text = Settings.Default.Key;
             this.Startup.Checked = Settings.Default.RunStartup;
+
+            //Screen
+            this.CrtlBoxScreen.Checked = Settings.Default.CrtlScreen;
+            this.ShiftBoxScreen.Checked = Settings.Default.ShiftScreen;
+            this.AltBoxScreen.Checked = Settings.Default.AltScreen;
+            this.KeyboundScreen.Text = Settings.Default.KeyScreen;
         }
 
         private void Save_Click(object sender, EventArgs e)
@@ -67,5 +74,24 @@ namespace GabeazoWin
                 startup.RemoveStartup();
             }
         }
+
+        private void CrtlBoxScreen_CheckedChanged(object sender, EventArgs e)
+        {
+            Settings.Default.CrtlScreen = CrtlBoxScreen.Checked;
+            Settings.Default.Save();
+        }
+
+        private void ShiftBoxScreen_CheckedChanged(object sender, EventArgs e)
+        {
+            Settings.Default.ShiftScreen = ShiftBoxScreen.Checked;
+            Settings.Default.Save();
+        }
+
+        private void AltBoxScreen_CheckedChanged(object sender, EventArgs e)
+        {
+            Settings.Default.AltScreen = AltBoxScreen.Checked;
+            Settings.Default.Save();
+        }
+
     }
 }
