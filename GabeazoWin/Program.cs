@@ -58,7 +58,8 @@ namespace GabeazoWin
             };
 
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
-            form = new FormProgram(true);
+            form = new FormProgram();
+            form.Dispose();
 
             hook = new KeyboardHook();
             hook.KeyDown += new KeyboardHook.HookEventHandler(OnHookKeyDown);
@@ -71,9 +72,23 @@ namespace GabeazoWin
 
         private void OnHookKeyDown(object sender, HookEventArgs e)
         {
-            bool isTrigged = LoadSettings(e);
+            bool isTrigged = Region(e);
+            bool capScreen = Screen(e);
             if (isTrigged)
             {
+                if (form.IsDisposed)
+                {
+                    form = new FormProgram();
+                }
+
+                form.Show();
+                form.Activate();
+                form.TopMost = true;
+            }
+            else if (capScreen)
+            {
+                form.Dispose();
+
                 if (form.IsDisposed)
                 {
                     form = new FormProgram(true);
@@ -86,14 +101,14 @@ namespace GabeazoWin
 
         }
 
-        void Exit(object sender, EventArgs e)
+        public void Exit(object sender, EventArgs e)
         {
             // Hide tray icon, otherwise it will remain shown until user mouses over it
             trayIcon.Visible = false;
             Current.Shutdown();
         }
 
-        void Setting(object sender, EventArgs e)
+        private void Setting(object sender, EventArgs e)
         {
             try
             {
@@ -105,7 +120,7 @@ namespace GabeazoWin
             }
         }
 
-        bool LoadSettings(HookEventArgs e)
+        private bool Region(HookEventArgs e)
         {
             bool keyComboTriggered = false;
 
@@ -121,6 +136,31 @@ namespace GabeazoWin
             bool ShiftBox = Settings.Default.Shift;
             bool AltBox = Settings.Default.Alt;
             string Keybound = Settings.Default.Key;
+
+            if (e.Key.ToString().ToUpper() == Keybound.ToUpper() && e.Control == CrtlBox && e.Shift == ShiftBox && e.Alt == AltBox)
+            {
+                keyComboTriggered = true;
+            }
+
+            return keyComboTriggered;
+        }
+
+        private bool Screen(HookEventArgs e)
+        {
+            bool keyComboTriggered = false;
+
+            string globKey = e.Key.ToString();
+            if (settingsForm.KeyboundScreen.Focused)
+            {
+                settingsForm.KeyboundScreen.Text = globKey;
+                Settings.Default.KeyScreen = globKey;
+                Settings.Default.Save();
+            }
+
+            bool CrtlBox = Settings.Default.CrtlScreen;
+            bool ShiftBox = Settings.Default.ShiftScreen;
+            bool AltBox = Settings.Default.AltScreen;
+            string Keybound = Settings.Default.KeyScreen;
 
             if (e.Key.ToString().ToUpper() == Keybound.ToUpper() && e.Control == CrtlBox && e.Shift == ShiftBox && e.Alt == AltBox)
             {

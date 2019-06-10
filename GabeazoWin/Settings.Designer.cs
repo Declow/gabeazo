@@ -82,5 +82,66 @@ namespace GabeazoWin {
                 this["RunStartup"] = value;
             }
         }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool CrtlScreen
+        {
+            get
+            {
+                return ((bool)(this["CrtlScreen"]));
+            }
+            set
+            {
+                this["CrtlScreen"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ShiftScreen
+        {
+            get
+            {
+                return ((bool)(this["ShiftScreen"]));
+            }
+            set
+            {
+                this["ShiftScreen"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool AltScreen
+        {
+            get
+            {
+                return ((bool)(this["AltScreen"]));
+            }
+            set
+            {
+                this["AltScreen"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public string KeyScreen
+        {
+            get
+            {
+                return ((string)(this["KeyScreen"]));
+            }
+            set
+            {
+                this["KeyScreen"] = value;
+            }
+        }
+
     }
 }
